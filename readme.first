@@ -1,2 +1,37 @@
 
 Please replace "/app" on any paths mentioned in the script with actual path on your system
+Here's a directory structure for the project
+Docker-Laravel-MySQL-Traefik/
+├── docker
+│   └── scripts
+│       ├── build
+│       │   └── laravel
+│       │       ├── apache2.conf
+│       │       ├── Dockerfile
+│       │       └── modsecurity.conf
+│       └── stack
+│           └── stack.yaml
+└── web
+    ├── certs
+    ├── httpd
+    │   ├── conf
+    │   │   ├── conf-enabled
+    │   │   │   ├── php.conf
+    │   │   │   └── security.conf
+    │   │   ├── php.ini
+    │   │   └── sites-enabled
+    │   │       ├── golemn.conf
+    │   │       ├── mantle.conf
+    │   │       └── solveig.conf
+    │   ├── data
+    │   │   └── site
+    │   │       └── public
+    │   │           └── index.html
+    │   └── logs
+    ├── mysqld
+    │   ├── conf
+    │   └── data
+    └── traefik
+        └── configuration
+            ├── certificates.toml
+            └── tls.conf
