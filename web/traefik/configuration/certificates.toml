@@ -1,0 +1,9 @@
+[[tls.certificates]]
+   certFile = "/certs/solveig.mach5.web.id.pem"
+   keyFile = "/certs/solveig.mach5.web.id.key"
+[[tls.certificates]]
+   certFile = "/certs/solveig.mantle.mach5.web.id.pem"
+   keyFile = "/certs/solveig.mantle.mach5.web.id.key"
+[[tls.certificates]]
+   certFile = "/certs/golemn.mantle.mach5.web.id.pem"
+   keyFile = "/certs/golemn.mantle.mach5.web.id.key"

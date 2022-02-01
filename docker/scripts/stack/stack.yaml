@@ -1,0 +1,87 @@
+version: "3.3"
+
+services:
+  traefik:
+    image: "traefik:v2.2.1"
+    networks:
+      - webnet
+    command:
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --providers.docker=true
+      - --providers.docker.swarmMode=true
+      - --providers.docker.network=webnet
+      - --providers.docker.exposedbydefault=false
+      - --providers.file.directory=/configuration/
+      - --providers.file.watch=true
+    ports:
+      - target: 80
+        published: 80
+        mode: host
+      - target: 443
+        published: 443
+        mode: host
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/app/web/traefik/configuration/:/configuration/"
+      - "/app/web/certs/:/certs/"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+  db:
+    image: mysql
+    networks:
+      - webnet
+    volumes:
+      - /app/web/mysqld/data:/var/lib/mysql
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - MYSQL_ROOT_PASSWORD=mascarpone
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+  app:
+    image: solveig.mach5.web.id:8443/laravel:v1
+    networks:
+      - webnet
+    depends_on:
+      - wpdb
+    volumes:
+      - /app/web/httpd/data:/var/www/html/
+      - /app/web/httpd/logs:/var/log/apache2
+      - /app/web/httpd/conf/sites-enabled:/etc/apache2/sites-enabled
+      - /app/web/httpd/conf/conf-enabled/php.conf:/etc/apache2/conf-enabled/php.conf
+      - /app/web/httpd/conf/conf-enabled/security.conf:/etc/apache2/conf-enabled/security.conf
+      - /app/web/httpd/conf/php.ini:/usr/local/etc/php/php.ini
+    deploy:
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.my-app.rule=Host(`solveig.mach5.web.id`) || Host(`solveig.mantle.mach5.web.id`) || Host(`golemn.mantle.mach5.web.id`)"
+        - "traefik.http.routers.my-app.entrypoints=websecure"
+        - "traefik.http.routers.my-app.tls=true"
+        - "traefik.http.services.my-app.loadbalancer.server.port=80"
+        - "traefik.http.services.my-app.loadbalancer.sticky=true"
+        - "traefik.http.services.my-app.loadbalancer.sticky.cookie.name=StickyCookie"
+        - "traefik.http.services.my-app.loadbalancer.sticky.cookie.secure=true"
+        - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+        - "traefik.http.routers.redirs.rule=hostregexp(`{host:.+}`)"
+        - "traefik.http.routers.redirs.entrypoints=web"
+        - "traefik.http.routers.redirs.middlewares=redirect-to-https"
+        - "traefik.http.middlewares.secheader.headers.referrerPolicy=no-referrer"
+        - "traefik.http.middlewares.secheader.headers.framedeny=true"
+        - "traefik.http.middlewares.secheader.headers.stsSeconds=31536000"
+        - "traefik.http.middlewares.secheader.headers.forceSTSHeader=true"
+        - "traefik.http.middlewares.secheader.headers.stsPreload=true"
+        - "traefik.http.middlewares.secheader.headers.stsIncludeSubdomains=true"
+        - "traefik.http.middlewares.secheader.headers.browserXssFilter=true"
+        - "traefik.http.middlewares.secheader.headers.contentTypeNosniff=true"
+        - "traefik.http.middlewares.secheader.headers.featurePolicy=self"
+        - "traefik.http.middlewares.secheader.headers.customRequestHeaders.X-Forwarded-Proto=https"
+        - "traefik.http.routers.my-app.middlewares=secheader"
+
+networks:
+  webnet:
+     external: true
