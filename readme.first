@@ -1,7 +1,6 @@
 
-Please replace "/app" on any paths mentioned in the script with actual path on your system
 Here's a directory structure for the project
-Docker-Laravel-MySQL-Traefik/
+app/ <-Please replace "/app" on any paths mentioned in the script with actual path on your system
 ├── docker
 │   └── scripts
 │       ├── build
@@ -12,7 +11,13 @@ Docker-Laravel-MySQL-Traefik/
 │       └── stack
 │           └── stack.yaml
 └── web
-    ├── certs
+    ├── certs <-SSL certificates and private keys for the domains are stored here 
+    │   ├── golemn.mantle.mach5.web.id.key
+    │   ├── golemn.mantle.mach5.web.id.pem
+    │   ├── mantle.mach5.web.id.key
+    │   ├── mantle.mach5.web.id.pem
+    │   ├── solveig.mach5.web.id.key
+    │   └── solveig.mach5.web.id.pem
     ├── httpd
     │   ├── conf
     │   │   ├── conf-enabled
@@ -35,3 +40,4 @@ Docker-Laravel-MySQL-Traefik/
         └── configuration
             ├── certificates.toml
             └── tls.conf
+
